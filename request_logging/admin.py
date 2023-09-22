@@ -5,9 +5,10 @@ from .models import RequestLog
 
 @admin.register(RequestLog)
 class RequestLogAdmin(admin.ModelAdmin):
-    list_display = ('user_id', 'client_ip', 'hostname', 'method', 'path', 'response_code', 'display_response_time',
+    list_display = ('client_ip', 'user_id', 'hostname', 'method', 'path', 'response_code', 'display_response_time',
                     'request_at')
     search_fields = ('client_ip', 'path', 'user__username')
+    search_help_text = 'Search by client ip, path or username'
 
     fieldsets = (
         (
