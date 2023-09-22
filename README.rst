@@ -6,7 +6,7 @@ Install
 
 ::
 
-    pip install git+https://github.com/cuongnb14/django-request-logging.git@v1.0#egg=django-request-logging
+    pip install git+https://github.com/cuongnb14/django-request-logging.git@v1.1#egg=django-request-logging
 
 Setting
 =======
