@@ -5,7 +5,7 @@ from .models import RequestLog
 from .settings import REQUEST_LOGGING_SETTINGS
 import logging
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('request_log')
 
 
 def get_ip_client(request):
