@@ -2,6 +2,7 @@ import time
 import json
 
 from .models import RequestLog
+from .settings import REQUEST_LOGGING_SETTINGS
 import logging
 
 logger = logging.getLogger(__name__)
@@ -33,11 +34,11 @@ class RequestLogMiddleware:
         start_at = time.time()
 
         response = self.get_response(request)
+        if not REQUEST_LOGGING_SETTINGS['ENABLE_PYTHON_LOG'] and not REQUEST_LOGGING_SETTINGS['ENABLE_DB_LOG']:
+            return response
+
         try:
-            whitelist_paths = ['/v1/crawler/apikeys/checking', '/admin/jsi18n/', '/docs/redoc']
-            if request.path in whitelist_paths:
-                return response
-            if request.path.startswith('/admin'):
+            if request.path in REQUEST_LOGGING_SETTINGS['WHITELIST_PATHS']:
                 return response
 
             client_ip = get_ip_client(request)
@@ -52,7 +53,15 @@ class RequestLogMiddleware:
                 'response_code': response.status_code,
                 'response_time': time.time() - start_at,
             }
-            RequestLog.objects.create(**data)
+
+            if REQUEST_LOGGING_SETTINGS['ENABLE_DB_LOG']:
+                RequestLog.objects.create(**data)
+
+            if REQUEST_LOGGING_SETTINGS['ENABLE_PYTHON_LOG']:
+                logger.info('%s %s %s %s %s %s "%s"',
+                            data['method'], data['path'], data['response_code'], int(data['response_time'] * 1000),
+                            data.get('user_id', '-'), data['client_ip'], data['user_agent'])
+            
         except Exception as e:
             logger.exception(e)
 
