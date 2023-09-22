@@ -18,6 +18,18 @@ Setting
         ...
     ]
 
+    MIDDLEWARE = [
+        ...
+        'request_logging.middlewares.RequestLogMiddleware'
+    ]
+
+    REQUEST_LOGGING = {
+        'WHITELIST_PATHS': [],
+        'ENABLE_PYTHON_LOG': True,
+        'ENABLE_DB_LOG': True,
+    }
+
+
 Run migrate:
 
 ::
