@@ -1,4 +1,6 @@
 from django.contrib import admin
+import json
+from django.utils.html import format_html
 
 from .models import RequestLog
 
@@ -15,7 +17,7 @@ class RequestLogAdmin(admin.ModelAdmin):
             None,
             {
                 'fields': (
-                    'user', 'client_ip', 'user_agent',
+                    'user', 'client_ip', 'display_headers',
                 )
             }
         ),
@@ -41,15 +43,23 @@ class RequestLogAdmin(admin.ModelAdmin):
     @admin.display(description='response time', ordering='response_time')
     def display_response_time(self, obj):
         if obj.response_time:
-            return "{:.2f}".format(obj.response_time)
+            return "{:.3f}".format(obj.response_time)
         return self.get_empty_value_display()
 
     @admin.display(description='request params')
     def display_request_params(self, obj):
         return self.format_json(obj.request_params) if obj.request_params else '-'
+    
+    @admin.display(description='headers')
+    def display_headers(self, obj):
+        return self.format_json(obj.headers) if obj.headers else '-'
 
     def has_change_permission(self, request, obj=None):
         return False
 
     def has_add_permission(self, request, obj=None):
         return False
+
+    def format_json(self, content, indent=4):
+        content = json.dumps(content, indent=indent)
+        return format_html('<pre>{}</pre>', content)

@@ -13,7 +13,7 @@ class RequestLog(models.Model):
     path = models.CharField(max_length=1500)
     request_params = models.JSONField(null=True, blank=True, default=None)
     client_ip = models.CharField(max_length=255)
-    user_agent = models.CharField(max_length=1500, null=True, blank=True, default=None)
+    headers = models.JSONField(default=dict)
     response_code = models.IntegerField()
     response_time = models.FloatField()
     request_at = models.DateTimeField(default=timezone.now)

@@ -4,6 +4,7 @@ import json
 from .models import RequestLog
 from .settings import REQUEST_LOGGING_SETTINGS
 import logging
+import random
 
 logger = logging.getLogger('request_log')
 
@@ -42,6 +43,12 @@ class RequestLogMiddleware:
                 return response
 
             client_ip = get_ip_client(request)
+
+            header_keys = ["HTTP_USER_AGENT", "HTTP_X_FORWARDED_FOR", "REMOTE_ADDR", "HTTP_REFERER"]
+            headers = {}
+            for k in REQUEST_LOGGING_SETTINGS["LOG_HEADER_KEYS"]:
+                headers[k] = request.META.get(k, '')
+
             data = {
                 'user_id': request.user.id if request.user else None,
                 'method': request.method,
@@ -49,18 +56,20 @@ class RequestLogMiddleware:
                 'path': request.path,
                 'request_params': request.GET,
                 'client_ip': client_ip,
-                'user_agent': request.META.get('HTTP_USER_AGENT', ''),
+                'headers': headers,
                 'response_code': response.status_code,
                 'response_time': time.time() - start_at,
             }
 
             if REQUEST_LOGGING_SETTINGS['ENABLE_DB_LOG']:
-                RequestLog.objects.create(**data)
+                if random.random() < REQUEST_LOGGING_SETTINGS["DB_LOG_SAMPLE"]:
+                    RequestLog.objects.create(**data)
 
             if REQUEST_LOGGING_SETTINGS['ENABLE_PYTHON_LOG']:
-                logger.info('%s %s %s %s %s %s "%s"',
-                            data['method'], data['path'], data['response_code'], int(data['response_time'] * 1000),
-                            data.get('user_id', '-'), data['client_ip'], data['user_agent'])
+                user_id = data["user_id"] if data["user_id"] else "-"
+                logger.info('%s %s %sms %s %s %s %s "%s"',
+                            data['client_ip'], data['response_code'], int(data['response_time'] * 1000), user_id,
+                            data['method'], data['path'], request.META.get('HTTP_REFERER', '-'), request.META.get('HTTP_USER_AGENT', '-'))
             
         except Exception as e:
             logger.exception(e)
