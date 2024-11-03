@@ -6,7 +6,7 @@ from .settings import REQUEST_LOGGING_SETTINGS
 import logging
 import random
 
-logger = logging.getLogger('request_log')
+logger = logging.getLogger('request_logging')
 
 
 def get_ip_client(request):
