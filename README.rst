@@ -1,6 +1,8 @@
 Django Request Logging
 ===================
 
+Django Request Logging is a Django app that logs detailed request information, such as URL, method, headers, and response time. It outputs logs to the console and can optionally store them in the database for long-term tracking, making it easier to monitor, debug, and analyze user interactions with your application.
+
 Install
 =======
 
